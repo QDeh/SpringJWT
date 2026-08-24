@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import co.simplon.springjwt.dto.LoginDto;
 import co.simplon.springjwt.entity.UserEntity;
 import co.simplon.springjwt.repository.RoleRepository;
 import co.simplon.springjwt.repository.UserRepository;
@@ -37,13 +38,15 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody UserEntity user) {
+    public LoginDto login(@RequestBody UserEntity user) {
 
         Authentication auth = this.authManager.authenticate(new UsernamePasswordAuthenticationToken(
                 user.getUsername(), user.getPassword()));
         String token = tokenService.generateToken(auth);
 
-        return token;
+        // récupère l'utilisateur connecté
+        UserEntity userConnected = (UserEntity) auth.getPrincipal();
+        return new LoginDto(token, userConnected.getUsername());
     }
 
     @PostMapping("/register")
